@@ -1,0 +1,547 @@
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Workflow Systems — Training Console</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=Archivo:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root{
+  --steel:#14171a;
+  --panel:#1d2126;
+  --panel2:#23282e;
+  --line:#343b42;
+  --line-soft:#2a3036;
+  --ink:#e9e6df;
+  --muted:#8b939b;
+  --muted2:#646c74;
+  --amber:#ffb000;
+  --amber-soft:#ffc94d;
+  --orange:#ff6b35;
+  --green:#7bc950;
+  --red:#ff5b5b;
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--steel);}
+body{
+  font-family:'Archivo',sans-serif;
+  color:var(--ink);
+  line-height:1.5;
+  background-image:
+    radial-gradient(circle at 12% 0%, rgba(255,176,0,.06), transparent 40%),
+    radial-gradient(circle at 90% 100%, rgba(255,107,53,.05), transparent 45%);
+  background-attachment:fixed;
+}
+body::after{
+  content:"";position:fixed;inset:0;pointer-events:none;z-index:1;opacity:.025;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.wrap{max-width:920px;margin:0 auto;padding:0 18px 80px;position:relative;z-index:2}
+
+/* ===== Header ===== */
+.topbar{
+  border-bottom:2px solid var(--line);
+  padding:26px 0 18px;margin-bottom:0;
+}
+.stamp{
+  display:inline-flex;align-items:center;gap:10px;
+  font-family:'Saira Condensed';font-weight:700;letter-spacing:.16em;
+  font-size:12px;text-transform:uppercase;color:var(--steel);
+  background:var(--amber);padding:5px 12px;border-radius:2px;
+}
+.stamp::before{content:"●";color:var(--orange);font-size:9px}
+h1{
+  font-family:'Saira Condensed';font-weight:700;text-transform:uppercase;
+  letter-spacing:.02em;font-size:clamp(28px,5vw,42px);line-height:.98;
+  margin:14px 0 6px;
+}
+h1 em{color:var(--amber);font-style:normal}
+.sub{color:var(--muted);font-size:14px;max-width:600px}
+.hazard{
+  height:7px;margin:18px 0 0;border-radius:2px;
+  background:repeating-linear-gradient(45deg,var(--amber) 0 16px,#1a1c1f 16px 32px);
+  opacity:.85;
+}
+
+/* ===== Status strip ===== */
+.status{
+  display:grid;grid-template-columns:repeat(4,1fr);gap:1px;
+  background:var(--line);border:1px solid var(--line);
+  margin:20px 0 4px;border-radius:4px;overflow:hidden;
+}
+.status .cell{background:var(--panel);padding:12px 14px}
+.status .k{font-family:'JetBrains Mono';font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted2)}
+.status .v{font-family:'Saira Condensed';font-weight:700;font-size:24px;line-height:1.1;margin-top:3px}
+.status .v small{font-size:13px;color:var(--muted);font-weight:500}
+.bar{height:6px;background:var(--line-soft);border-radius:3px;margin-top:9px;overflow:hidden}
+.bar > i{display:block;height:100%;background:linear-gradient(90deg,var(--amber),var(--amber-soft));border-radius:3px;transition:width .4s}
+
+/* ===== Tabs ===== */
+.tabs{display:flex;gap:2px;margin:24px 0 18px;border-bottom:1px solid var(--line)}
+.tab{
+  font-family:'Saira Condensed';font-weight:600;text-transform:uppercase;letter-spacing:.08em;
+  font-size:14px;color:var(--muted);background:none;border:none;cursor:pointer;
+  padding:11px 16px;border-bottom:2px solid transparent;margin-bottom:-1px;transition:.18s;
+}
+.tab:hover{color:var(--ink)}
+.tab.on{color:var(--amber);border-bottom-color:var(--amber)}
+
+/* ===== Cards ===== */
+.card{
+  background:var(--panel);border:1px solid var(--line);border-radius:5px;
+  padding:20px 22px;margin-bottom:16px;position:relative;
+}
+.card.lead{border-left:3px solid var(--amber)}
+.label{
+  font-family:'JetBrains Mono';font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--muted2);margin-bottom:7px;display:block;
+}
+.eyebrow{font-family:'Saira Condensed';font-weight:700;text-transform:uppercase;letter-spacing:.05em;font-size:19px;margin-bottom:3px}
+.muted{color:var(--muted)}
+.mono{font-family:'JetBrains Mono'}
+
+input[type=text],textarea,select{
+  width:100%;background:var(--steel);border:1px solid var(--line);
+  color:var(--ink);font-family:'Archivo';font-size:15px;padding:10px 12px;border-radius:4px;
+  resize:vertical;
+}
+input[type=text]:focus,textarea:focus,select:focus{outline:none;border-color:var(--amber)}
+input[type=number]{
+  width:70px;background:var(--steel);border:1px solid var(--line);color:var(--ink);
+  font-family:'JetBrains Mono';font-size:15px;padding:8px 10px;border-radius:4px;text-align:center;
+}
+input[type=number]:focus{outline:none;border-color:var(--amber)}
+
+.btn{
+  font-family:'Saira Condensed';font-weight:700;text-transform:uppercase;letter-spacing:.06em;
+  font-size:14px;cursor:pointer;border:1px solid var(--line);background:var(--panel2);
+  color:var(--ink);padding:10px 16px;border-radius:4px;transition:.15s;
+}
+.btn:hover{border-color:var(--amber);color:var(--amber)}
+.btn.primary{background:var(--amber);color:var(--steel);border-color:var(--amber)}
+.btn.primary:hover{background:var(--amber-soft);color:var(--steel)}
+.btn.ghost{background:none}
+.btn.sm{padding:6px 11px;font-size:12px}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.spread{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+
+/* tasks */
+.task{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid var(--line-soft)}
+.task:last-child{border-bottom:none}
+.chk{
+  width:20px;height:20px;border:2px solid var(--line);border-radius:3px;cursor:pointer;
+  flex:0 0 auto;display:grid;place-items:center;color:var(--steel);font-size:13px;font-weight:700;transition:.15s;
+}
+.chk.on{background:var(--green);border-color:var(--green)}
+.task .t{flex:1;font-size:15px}
+.task.done .t{text-decoration:line-through;color:var(--muted2)}
+.x{cursor:pointer;color:var(--muted2);font-family:'JetBrains Mono';font-size:14px;padding:2px 6px}
+.x:hover{color:var(--red)}
+
+/* hours grid */
+.hours{display:grid;grid-template-columns:1fr auto;gap:8px 14px;align-items:center;margin-top:6px}
+.hours .hl{font-size:14px}
+.hours .hl small{color:var(--muted2);font-family:'JetBrains Mono';font-size:11px;display:block}
+
+.banner{
+  border:1px solid var(--orange);background:rgba(255,107,53,.09);border-left:3px solid var(--orange);
+  padding:13px 16px;border-radius:4px;margin-bottom:16px;font-size:14px;
+}
+.banner b{color:var(--orange);font-family:'Saira Condensed';letter-spacing:.04em}
+.banner.good{border-color:var(--green);background:rgba(123,201,80,.08);border-left-color:var(--green)}
+.banner.good b{color:var(--green)}
+
+/* roadmap */
+.phase{display:flex;gap:16px;padding:16px 0;border-bottom:1px solid var(--line-soft)}
+.phase:last-child{border-bottom:none}
+.phase .mark{
+  flex:0 0 auto;width:48px;height:48px;border-radius:6px;border:1px solid var(--line);
+  display:grid;place-items:center;font-family:'Saira Condensed';font-weight:700;font-size:13px;
+  text-align:center;line-height:1;color:var(--muted);background:var(--steel);
+}
+.phase.cur .mark{background:var(--amber);color:var(--steel);border-color:var(--amber)}
+.phase.past .mark{border-color:var(--green);color:var(--green)}
+.phase h4{font-family:'Saira Condensed';font-weight:700;text-transform:uppercase;letter-spacing:.04em;font-size:18px}
+.phase.cur h4{color:var(--amber)}
+.phase .out{color:var(--muted);font-size:13px;margin-top:3px}
+.phase .det{font-size:14px;margin-top:6px;color:#c3c8cd}
+
+/* logbook */
+.logentry{background:var(--steel);border:1px solid var(--line);border-radius:4px;padding:16px 18px;margin-bottom:12px}
+.logentry pre{font-family:'JetBrains Mono';font-size:13px;white-space:pre-wrap;color:#cfd4d9;line-height:1.6}
+
+/* portfolio */
+.pf{display:flex;gap:12px;padding:13px 0;border-bottom:1px solid var(--line-soft)}
+.pf:last-child{border-bottom:none}
+.pftag{
+  flex:0 0 auto;font-family:'JetBrains Mono';font-size:10px;letter-spacing:.08em;text-transform:uppercase;
+  padding:4px 8px;border-radius:3px;height:fit-content;
+}
+.pftag.resume{background:rgba(255,176,0,.15);color:var(--amber-soft);border:1px solid rgba(255,176,0,.3)}
+.pftag.artifact{background:rgba(123,201,80,.13);color:var(--green);border:1px solid rgba(123,201,80,.3)}
+.pf .ptxt{flex:1;font-size:14.5px}
+.pf .pwk{font-family:'JetBrains Mono';font-size:11px;color:var(--muted2)}
+
+.empty{color:var(--muted2);font-size:14px;padding:14px 0;text-align:center}
+.foot{margin-top:30px;padding-top:18px;border-top:1px solid var(--line-soft);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+.foot-note{flex:1 1 100%;font-size:11px;color:var(--muted2);margin-bottom:4px}
+.foot-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.loading{text-align:center;padding:80px 0;color:var(--muted);font-family:'JetBrains Mono';letter-spacing:.1em}
+@media(max-width:560px){.status{grid-template-columns:repeat(2,1fr)}}
+</style>
+
+<div class="wrap">
+  <div class="topbar">
+    <span class="stamp">Work Order · Career Build</span>
+    <h1>AI Workflow<br><em>Systems</em> Training Console</h1>
+    <p class="sub">12-month build toward AI workflow systems engineer. Flagship: a maintenance-ticket triage system. This console keeps your progress between sessions — your mentor's memory lives here.</p>
+    <div class="hazard"></div>
+  </div>
+
+  <div id="app"><div class="loading">INITIALIZING CONSOLE…</div></div>
+
+  <div class="foot">
+    <span class="foot-note mono">Data saves to this browser via localStorage. Export JSON regularly and commit important weekly notes to docs/learning/.</span>
+    <div class="foot-actions">
+      <button class="btn ghost sm" onclick="exportData()">Export data</button>
+      <button class="btn ghost sm" onclick="document.getElementById('import-file').click()">Import data</button>
+      <input type="file" id="import-file" accept=".json,application/json" style="display:none" onchange="importData(event)">
+      <button class="btn ghost sm" onclick="resetAll()">Reset all data</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ---------- roadmap (static spec) ---------- */
+const PHASES = [
+  {months:[1,2], title:"Solidify Modern Python", out:"Clean, typed, version-controlled Python.",
+   det:"Type hints, data structures, error handling, modules/packages, virtualenvs, uv/pip, Git/GitHub from day one. Intro Pydantic models + validation; JSON & CSV."},
+  {months:[3,4], title:"Backend with FastAPI", out:"A small but real API you built and tested.",
+   det:"REST basics, routes, request/response models with Pydantic, async basics, dependency injection, pytest, SQLite/SQL."},
+  {months:[5,6], title:"LLMs · Structured Output · Agents", out:"An LLM that returns validated structured data.",
+   det:"Practical LLM use, prompting, reliable structured output (LLM + Pydantic), tool/function calling, basic agent loops. Begin triage skeleton: schemas + first classifier."},
+  {months:[7,8,9], title:"Build the Flagship End-to-End", out:"A working triage system.",
+   det:"Ingestion → classification → field extraction → safety rules → human-in-the-loop routing → FastAPI service, with persistence + logging."},
+  {months:[9,10], title:"Evaluation Harness & Reliability", out:"You can prove HOW WELL it works.",
+   det:"Labeled dataset, metrics (per-class precision/recall, accuracy, confidence calibration), regression tests, logging/observability, structured error analysis. YOUR differentiator."},
+  {months:[10,11], title:"Polish · Deploy · Document", out:"A portfolio piece judged in 5 minutes.",
+   det:"Dockerize, deploy publicly, excellent README, case-study write-up with metrics, short demo video."},
+  {months:[11,12], title:"Job-Readiness Sprint", out:"Actively interviewing with strong materials.",
+   det:"Resume, LinkedIn, portfolio, mock interviews, networking, applications. (Career items woven in from the start.)"},
+];
+function phaseForMonth(m){ return PHASES.find(p=>p.months.includes(m)) || PHASES[0]; }
+function milestoneForMonth(m){ return phaseForMonth(m).title; }
+function monthForWeek(w){ return Math.min(12, Math.max(1, Math.ceil(w/4.333))); }
+
+const BUCKETS = [
+  {k:"learning", label:"New concepts / learning"},
+  {k:"project",  label:"Project work (flagship)"},
+  {k:"practice", label:"Practice / exercises / review"},
+  {k:"career",   label:"Career prep (resume, GitHub, drills)"},
+  {k:"writing",  label:"Writing / reflection / docs"},
+];
+function recommendedSplit(month){
+  return month<=6
+    ? {learning:6,project:5,practice:2,career:1,writing:1}
+    : {learning:3,project:8,practice:1,career:2,writing:1};
+}
+
+/* ---------- state ---------- */
+let S=null, tab="week";
+
+function blankWeek(n){
+  const month=monthForWeek(n);
+  return {n, month, milestone:milestoneForMonth(month), goal:"", tasks:[],
+    hours:{learning:0,project:0,practice:0,career:0,writing:0},
+    blockers:"", next:"", reflection:"", artifact:"", done:""};
+}
+function defaults(){ return {startedAt:new Date().toISOString(), current:blankWeek(1), weeks:[], portfolio:[]}; }
+
+/*
+ * Persistence uses browser localStorage — data stays on this machine/browser only.
+ * Export/import JSON is the backup path when switching browsers or clearing storage.
+ * Permanent project records (weekly summaries, decisions) belong in Markdown under docs/
+ * and should be committed to Git; localStorage is a convenience dashboard, not source of truth.
+ */
+const STORAGE_KEY = "ticket-triage:training-console:data";
+
+function load(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if(raw){
+      S = JSON.parse(raw);
+    } else {
+      S = defaults();
+      save();
+    }
+  } catch(e){
+    console.error("load failed, using defaults", e);
+    S = defaults();
+  }
+  if(!S.current) S.current = blankWeek(1);
+  if(!Array.isArray(S.weeks)) S.weeks = [];
+  if(!Array.isArray(S.portfolio)) S.portfolio = [];
+  render();
+}
+
+function save(){
+  try{
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(S));
+  } catch(e){
+    console.error("save failed", e);
+  }
+}
+
+function mutate(fn){ fn(); save(); render(); }
+
+function isValidBackup(data){
+  return data
+    && typeof data === "object"
+    && data.current
+    && Array.isArray(data.weeks)
+    && Array.isArray(data.portfolio);
+}
+
+function exportData(){
+  try{
+    const blob = new Blob([JSON.stringify(S, null, 2)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = "ticket-triage-training-console-backup.json";
+    a.click();
+    URL.revokeObjectURL(a.href);
+    flash("Backup downloaded");
+  } catch(e){
+    console.error("export failed", e);
+    alert("Export failed. See browser console for details.");
+  }
+}
+
+function importData(event){
+  const file = event.target.files && event.target.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const data = JSON.parse(e.target.result);
+      if(!isValidBackup(data)){
+        alert("Invalid backup file: must include current, weeks, and portfolio.");
+        return;
+      }
+      S = data;
+      if(!S.current) S.current = blankWeek(1);
+      save();
+      render();
+      flash("Data imported");
+    } catch(err){
+      console.error("import failed", err);
+      alert("Could not parse backup file. Existing data was not changed.");
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = "";
+}
+
+/* ---------- helpers ---------- */
+const esc=s=>(s||"").replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;"}[c]));
+function totalHours(w){ return BUCKETS.reduce((a,b)=>a+(+w.hours[b.k]||0),0); }
+function pct(w){ return Math.min(100, Math.round(totalHours(w)/15*100)); }
+
+/* ---------- render ---------- */
+function render(){
+  const w=S.current;
+  document.getElementById("app").innerHTML =
+    statusStrip(w) + tabBar() +
+    (tab==="week"?weekView(w):tab==="roadmap"?roadmapView(w):tab==="log"?logView():portfolioView());
+}
+
+function statusStrip(w){
+  const completed=S.weeks.length;
+  return `<div class="status">
+    <div class="cell"><div class="k">Current Week</div><div class="v">${w.n}<small> / 52</small></div></div>
+    <div class="cell"><div class="k">Month</div><div class="v">${w.month}<small> / 12</small></div></div>
+    <div class="cell"><div class="k">Weeks Logged</div><div class="v">${completed}</div></div>
+    <div class="cell"><div class="k">Hours This Wk</div><div class="v">${totalHours(w)}<small>/15</small></div>
+      <div class="bar"><i style="width:${pct(w)}%"></i></div></div>
+  </div>`;
+}
+function tabBar(){
+  const T=[["week","This Week"],["roadmap","Roadmap"],["log","Logbook"],["portfolio","Portfolio"]];
+  return `<div class="tabs">`+T.map(([id,l])=>
+    `<button class="tab ${tab===id?'on':''}" onclick="setTab('${id}')">${l}</button>`).join("")+`</div>`;
+}
+
+function accountabilityBanner(){
+  const last2=S.weeks.slice(-2);
+  if(last2.length===2 && last2.every(w=>totalHours(w)<15)){
+    return `<div class="banner"><b>Heads up —</b> two weeks running under 15 hours (${totalHours(last2[0])}h, then ${totalHours(last2[1])}h). That's the engine of this whole plan. Let's find the real obstacle and rebalance — not just push harder. Tell me what got in the way this week.</div>`;
+  }
+  if(last2.length>=1 && last2[last2.length-1] && totalHours(last2[last2.length-1])>=15){
+    return `<div class="banner good"><b>On pace —</b> last logged week hit the 15-hour target. If you're consistently ahead, ask me for a stretch task or to pull the next milestone forward.</div>`;
+  }
+  return "";
+}
+
+function weekView(w){
+  const rec=recommendedSplit(w.month);
+  const ph=phaseForMonth(w.month);
+  const tasks = w.tasks.length
+    ? w.tasks.map((t,i)=>`<div class="task ${t.done?'done':''}">
+        <div class="chk ${t.done?'on':''}" onclick="toggleTask(${i})">${t.done?'✓':''}</div>
+        <div class="t">${esc(t.text)}</div>
+        <span class="x" onclick="delTask(${i})">✕</span></div>`).join("")
+    : `<div class="empty">No tasks yet — break the weekly goal into 2–4 concrete tasks.</div>`;
+
+  const hours = BUCKETS.map(b=>`<div class="hl">${b.label}<small>recommended ~${rec[b.k]}h</small></div>
+     <input type="number" min="0" step="0.5" value="${w.hours[b.k]||0}" onchange="setHour('${b.k}',this.value)">`).join("");
+
+  return accountabilityBanner() + `
+  <div class="card lead">
+    <span class="label">Week ${w.n} · Month ${w.month} · Milestone</span>
+    <div class="eyebrow">${esc(w.milestone)}</div>
+    <div class="muted" style="font-size:13px">${esc(ph.out)}</div>
+  </div>
+
+  <div class="card">
+    <span class="label">The ONE measurable goal for the week</span>
+    <input type="text" value="${esc(w.goal)}" placeholder="e.g. Model a WorkOrder as a Pydantic schema with validated priority + trade enums"
+      onchange="setField('goal',this.value)">
+  </div>
+
+  <div class="card">
+    <div class="spread"><span class="label" style="margin:0">Tasks (2–4 concrete steps)</span></div>
+    <div style="margin-top:8px">${tasks}</div>
+    <div class="row" style="margin-top:12px">
+      <input type="text" id="newtask" placeholder="Add a task…" onkeydown="if(event.key==='Enter')addTask()">
+      <button class="btn sm" onclick="addTask()">Add</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="label">Hours logged — target 15/week (${w.month<=6?'learning-weighted phase':'project-weighted phase'})</span>
+    <div class="hours">${hours}</div>
+    <div class="spread" style="margin-top:16px">
+      <span class="mono" style="font-size:13px;color:var(--muted)">Total: <b style="color:var(--amber)">${totalHours(w)}</b> / 15 h</span>
+      <div class="bar" style="flex:1;max-width:260px"><i style="width:${pct(w)}%"></i></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <span class="label">Portfolio artifact / resume bullet this week should produce</span>
+    <input type="text" value="${esc(w.artifact)}" placeholder="e.g. README + commit history for the schema module"
+      onchange="setField('artifact',this.value)">
+  </div>
+
+  <div class="card">
+    <span class="label">End-of-week review (fill before closing out)</span>
+    <div style="display:grid;gap:10px;margin-top:4px">
+      <textarea rows="2" placeholder="What shipped / got done?" onchange="setField('done',this.value)">${esc(w.done)}</textarea>
+      <textarea rows="2" placeholder="Blockers, and the plan to clear them" onchange="setField('blockers',this.value)">${esc(w.blockers)}</textarea>
+      <textarea rows="2" placeholder="What carries into next week" onchange="setField('next',this.value)">${esc(w.next)}</textarea>
+      <textarea rows="2" placeholder="One reflection: what clicked, what's still shaky" onchange="setField('reflection',this.value)">${esc(w.reflection)}</textarea>
+    </div>
+    <div class="row" style="margin-top:16px">
+      <button class="btn" onclick="copySummary()">Copy week summary</button>
+      <button class="btn primary" onclick="closeWeek()">Close out &amp; start Week ${w.n+1} →</button>
+    </div>
+  </div>`;
+}
+
+function summaryText(w){
+  const t=w.tasks.map(x=>`${x.done?'[x]':'[ ]'} ${x.text}`).join("\n  ");
+  return `Week ${w.n} (Month ${w.month}) — ${w.milestone}
+Goal: ${w.goal||"—"}
+Done: ${w.done||"—"}${t?`\n  ${t}`:""}
+Hours: ${totalHours(w)}/15
+Blockers: ${w.blockers||"—"}
+Next week: ${w.next||"—"}
+Reflection: ${w.reflection||"—"}
+Artifact / resume bullet produced: ${w.artifact||"—"}`;
+}
+
+function roadmapView(w){
+  return `<div class="card">`+PHASES.map(p=>{
+    const cur=p.months.includes(w.month);
+    const past=Math.max(...p.months)<w.month;
+    const lab="M"+p.months[0]+(p.months.length>1?"–"+p.months[p.months.length-1]:"");
+    return `<div class="phase ${cur?'cur':past?'past':''}">
+      <div class="mark">${past?'✓':lab}</div>
+      <div><h4>${p.title}</h4><div class="out">→ ${p.out}</div><div class="det">${p.det}</div></div>
+    </div>`;
+  }).join("")+`</div>`;
+}
+
+function logView(){
+  if(!S.weeks.length) return `<div class="card"><div class="empty">No completed weeks yet. Close out your first week from the "This Week" tab and it'll be archived here permanently.</div></div>`;
+  return [...S.weeks].reverse().map(w=>`<div class="logentry">
+    <div class="spread" style="margin-bottom:10px">
+      <span class="label" style="margin:0">Week ${w.n} · Month ${w.month}</span>
+      <button class="btn ghost sm" onclick="copyLog(${w.n})">Copy</button>
+    </div>
+    <pre>${esc(summaryText(w))}</pre></div>`).join("");
+}
+
+function portfolioView(){
+  const pf=S.portfolio;
+  const body = pf.length
+    ? pf.map((p,i)=>`<div class="pf">
+        <span class="pftag ${p.type}">${p.type}</span>
+        <div class="ptxt">${esc(p.text)}<div class="pwk">Week ${p.week}</div></div>
+        <span class="x" onclick="delPf(${i})">✕</span></div>`).join("")
+    : `<div class="empty">Nothing logged yet. Every milestone should produce a resume bullet or a portfolio artifact — they'll collect here.</div>`;
+  return `<div class="card">
+    <span class="label">Resume bullets &amp; portfolio artifacts</span>
+    <div style="margin-top:6px">${body}</div>
+    <div class="row" style="margin-top:16px">
+      <select id="pftype" style="width:auto"><option value="resume">resume bullet</option><option value="artifact">artifact</option></select>
+      <input type="text" id="pftext" placeholder="Add an entry…" onkeydown="if(event.key==='Enter')addPf()" style="flex:1">
+      <button class="btn sm" onclick="addPf()">Add</button>
+    </div>
+  </div>`;
+}
+
+/* ---------- actions ---------- */
+function setTab(t){ tab=t; render(); }
+function setField(f,v){ mutate(()=>{S.current[f]=v}); }
+function setHour(k,v){ mutate(()=>{S.current.hours[k]=parseFloat(v)||0}); }
+function addTask(){ const el=document.getElementById("newtask"); const v=el.value.trim(); if(!v)return;
+  mutate(()=>{S.current.tasks.push({text:v,done:false})}); el.value=""; }
+function toggleTask(i){ mutate(()=>{S.current.tasks[i].done=!S.current.tasks[i].done}); }
+function delTask(i){ mutate(()=>{S.current.tasks.splice(i,1)}); }
+
+function addPf(){ const t=document.getElementById("pftext").value.trim();
+  const ty=document.getElementById("pftype").value; if(!t)return;
+  mutate(()=>{S.portfolio.push({type:ty,text:t,week:S.current.n})});
+  document.getElementById("pftext").value=""; }
+function delPf(i){ mutate(()=>{S.portfolio.splice(i,1)}); }
+
+function copySummary(){ navigator.clipboard.writeText(summaryText(S.current)).then(()=>flash("Week summary copied")); }
+function copyLog(n){ const w=S.weeks.find(x=>x.n===n); if(w) navigator.clipboard.writeText(summaryText(w)).then(()=>flash("Copied")); }
+
+function closeWeek(){
+  if(!confirm("Archive this week and start the next one? You can still view it in the Logbook.")) return;
+  mutate(()=>{
+    if(S.current.artifact && S.current.artifact.trim())
+      S.portfolio.push({type:"artifact",text:S.current.artifact.trim(),week:S.current.n});
+    S.weeks.push(JSON.parse(JSON.stringify(S.current)));
+    S.current = blankWeek(S.current.n+1);
+  });
+  flash("Week archived — new week started");
+}
+
+function resetAll(){
+  if(!confirm("Erase ALL progress, weeks, and portfolio entries? This cannot be undone.")) return;
+  S=defaults(); save(); tab="week"; render(); flash("Console reset");
+}
+
+let flashT;
+function flash(msg){
+  let el=document.getElementById("flash");
+  if(!el){ el=document.createElement("div"); el.id="flash";
+    el.style.cssText="position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:var(--amber);color:#14171a;font-family:'Saira Condensed';font-weight:700;letter-spacing:.05em;padding:11px 20px;border-radius:5px;z-index:99;box-shadow:0 8px 24px rgba(0,0,0,.4)";
+    document.body.appendChild(el); }
+  el.textContent=msg; el.style.opacity="1";
+  clearTimeout(flashT); flashT=setTimeout(()=>{el.style.opacity="0";el.style.transition="opacity .4s"},1600);
+}
+
+load();
+</script>
