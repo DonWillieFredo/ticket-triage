@@ -1,14 +1,12 @@
 # Immediate Next Logical Step
 
-## Current Milestone: Memory Infrastructure
+## Current Milestone: Green Baseline Before Week 5
 
-1. Finish creating repo-native AI memory files (`docs/context/`, `.ai/`, `tools/context_pack.py`)
-2. Run validation: `uv run ruff check .`, `uv run pytest`, `git status --short`
-3. Commit infrastructure separately with message: **Add repo-native AI project memory**
+1. Commit memory infrastructure: **Add repo-native AI project memory**
+2. Commit `safety_notes` alignment fix (samples → `list[str]`, tests green)
+3. Confirm: `uv run ruff check .` and `uv run pytest` pass
 
-## After Memory Infrastructure
-
-Proceed to **Week 5 CLI workflow**:
+## Next: Week 5 CLI Workflow
 
 - Local-only, no network dependencies
 - Deterministic behavior (no LLMs)
@@ -24,10 +22,9 @@ Proceed to **Week 5 CLI workflow**:
 - No MCP
 - No cloud deployment
 
-## Definition of Done for Memory Milestone
+## Definition of Done for Green Baseline
 
-- All context files exist with project-specific content
-- `.ai/context-index.md` points AI sessions to the correct read order
-- `tools/context_pack.py` bundles context successfully
+- Memory infrastructure committed
+- `safety_notes` aligned as `list[str]` across samples, model, and tests
 - ruff and pytest pass
-- Infrastructure committed before CLI feature work begins
+- Ready for Week 5 CLI feature work

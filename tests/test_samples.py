@@ -19,7 +19,7 @@ def test_ids_are_unique() -> None:
 
 
 def test_at_least_five_have_safety_notes() -> None:
-    with_notes = [o for o in WORK_ORDERS if o["safety_notes"].strip()]
+    with_notes = [o for o in WORK_ORDERS if o["safety_notes"]]
     assert len(with_notes) >= 5
 
 

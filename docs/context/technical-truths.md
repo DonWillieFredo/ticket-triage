@@ -40,6 +40,7 @@ tools/
 
 - `WorkOrderTrade` and `WorkOrderPriority` StrEnums
 - `WorkOrder` Pydantic model with `extra="forbid"`
+- `safety_notes: list[str]` on both `WorkOrder` and `WorkOrderSample` (empty list when none)
 - Blank-field validation on `id`, `raw_text`, `reported_by`
 - Enum normalization via `casefold()` in validators
 - `validate_work_orders()` accepts `Iterable[WorkOrderSample]`, returns `list[WorkOrder]`

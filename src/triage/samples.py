@@ -12,7 +12,7 @@ class WorkOrderSample(TypedDict):
     created_at: str
     expected_trade: str
     expected_priority: str
-    safety_notes: str
+    safety_notes: list[str]
 
 
 REQUIRED_FIELDS: tuple[str, ...] = (
@@ -40,7 +40,9 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-04T06:42:00-05:00",
         "expected_trade": "plumbing",
         "expected_priority": "urgent",
-        "safety_notes": "Slip hazard from standing water; keep area cordoned if possible.",
+        "safety_notes": [
+            "Slip hazard from standing water; keep area cordoned if possible.",
+        ],
     },
     {
         "id": "WO-2024-0002",
@@ -54,10 +56,12 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-04T22:15:00-05:00",
         "expected_trade": "hvac",
         "expected_priority": "emergency",
-        "safety_notes": (
-            "Possible gas leak — do not operate electrical switches in area; "
-            "evacuate adjacent spaces and call gas utility if smell persists."
-        ),
+        "safety_notes": [
+            (
+                "Possible gas leak — do not operate electrical switches in area; "
+                "evacuate adjacent spaces and call gas utility if smell persists."
+            ),
+        ],
     },
     {
         "id": "WO-2024-0003",
@@ -71,10 +75,12 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-05T09:18:00-05:00",
         "expected_trade": "electrical",
         "expected_priority": "emergency",
-        "safety_notes": (
-            "Active water intrusion near energized equipment — lock out panel, "
-            "de-energize affected circuits before any contact with water."
-        ),
+        "safety_notes": [
+            (
+                "Active water intrusion near energized equipment — lock out panel, "
+                "de-energize affected circuits before any contact with water."
+            ),
+        ],
     },
     {
         "id": "WO-2024-0004",
@@ -88,10 +94,12 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-05T20:33:00-05:00",
         "expected_trade": "hvac",
         "expected_priority": "urgent",
-        "safety_notes": (
-            "After-hours HVAC failure in occupied building — monitor for pipe freeze "
-            "if outdoor temps drop further."
-        ),
+        "safety_notes": [
+            (
+                "After-hours HVAC failure in occupied building — monitor for pipe freeze "
+                "if outdoor temps drop further."
+            ),
+        ],
     },
     {
         "id": "WO-2024-0005",
@@ -105,7 +113,9 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-06T08:05:00-05:00",
         "expected_trade": "plumbing",
         "expected_priority": "high",
-        "safety_notes": "Sanitation and repeat overflow risk — take restroom out of service if backup continues.",
+        "safety_notes": [
+            "Sanitation and repeat overflow risk — take restroom out of service if backup continues.",
+        ],
     },
     {
         "id": "WO-2024-0006",
@@ -119,7 +129,9 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-06T14:22:00-05:00",
         "expected_trade": "general",
         "expected_priority": "high",
-        "safety_notes": "Security breach — unsecured exterior door; post temp guard or monitor until repaired.",
+        "safety_notes": [
+            "Security breach — unsecured exterior door; post temp guard or monitor until repaired.",
+        ],
     },
     {
         "id": "WO-2024-0007",
@@ -133,7 +145,9 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-07T17:45:00-05:00",
         "expected_trade": "electrical",
         "expected_priority": "medium",
-        "safety_notes": "Poor exterior lighting — trip and security risk after dark.",
+        "safety_notes": [
+            "Poor exterior lighting — trip and security risk after dark.",
+        ],
     },
     {
         "id": "WO-2024-0008",
@@ -147,7 +161,9 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-08T11:30:00-05:00",
         "expected_trade": "general",
         "expected_priority": "medium",
-        "safety_notes": "Active trip hazard in high-traffic corridor — mark or tape down until repair.",
+        "safety_notes": [
+            "Active trip hazard in high-traffic corridor — mark or tape down until repair.",
+        ],
     },
     {
         "id": "WO-2024-0009",
@@ -161,7 +177,7 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-08T15:10:00-05:00",
         "expected_trade": "plumbing",
         "expected_priority": "medium",
-        "safety_notes": "",
+        "safety_notes": [],
     },
     {
         "id": "WO-2024-0010",
@@ -175,7 +191,7 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-09T01:55:00-05:00",
         "expected_trade": "general",
         "expected_priority": "medium",
-        "safety_notes": "",
+        "safety_notes": [],
     },
     {
         "id": "WO-2024-0011",
@@ -189,7 +205,9 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-09T12:08:00-05:00",
         "expected_trade": "electrical",
         "expected_priority": "urgent",
-        "safety_notes": "Fire and shock hazard — keep circuit de-energized until inspected.",
+        "safety_notes": [
+            "Fire and shock hazard — keep circuit de-energized until inspected.",
+        ],
     },
     {
         "id": "WO-2024-0012",
@@ -203,7 +221,9 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-10T07:20:00-05:00",
         "expected_trade": "general",
         "expected_priority": "urgent",
-        "safety_notes": "Potential entrapment risk — vendor callback required; consider pulling from service.",
+        "safety_notes": [
+            "Potential entrapment risk — vendor callback required; consider pulling from service.",
+        ],
     },
     {
         "id": "WO-2024-0013",
@@ -217,10 +237,12 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-10T13:40:00-05:00",
         "expected_trade": "hvac",
         "expected_priority": "high",
-        "safety_notes": (
-            "Possible IAQ issue — investigate HVAC intake and nearby chemical storage; "
-            "consider temporary ventilation boost."
-        ),
+        "safety_notes": [
+            (
+                "Possible IAQ issue — investigate HVAC intake and nearby chemical storage; "
+                "consider temporary ventilation boost."
+            ),
+        ],
     },
     {
         "id": "WO-2024-0014",
@@ -234,7 +256,9 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-11T06:00:00-05:00",
         "expected_trade": "general",
         "expected_priority": "high",
-        "safety_notes": "Water near rooftop electrical equipment — verify no active leaks onto live gear.",
+        "safety_notes": [
+            "Water near rooftop electrical equipment — verify no active leaks onto live gear.",
+        ],
     },
     {
         "id": "WO-2024-0015",
@@ -248,7 +272,9 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-11T09:52:00-05:00",
         "expected_trade": "electrical",
         "expected_priority": "high",
-        "safety_notes": "Life safety system impairment — restore detector to normal within 4 hours per policy.",
+        "safety_notes": [
+            "Life safety system impairment — restore detector to normal within 4 hours per policy.",
+        ],
     },
     {
         "id": "WO-2024-0016",
@@ -262,7 +288,9 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-12T10:15:00-05:00",
         "expected_trade": "plumbing",
         "expected_priority": "medium",
-        "safety_notes": "Slip hazard near food service area.",
+        "safety_notes": [
+            "Slip hazard near food service area.",
+        ],
     },
     {
         "id": "WO-2024-0017",
@@ -276,7 +304,9 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-12T14:30:00-05:00",
         "expected_trade": "general",
         "expected_priority": "medium",
-        "safety_notes": "Potential falling glass hazard at height — restrict access below if instability worsens.",
+        "safety_notes": [
+            "Potential falling glass hazard at height — restrict access below if instability worsens.",
+        ],
     },
     {
         "id": "WO-2024-0018",
@@ -290,7 +320,9 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-13T08:45:00-05:00",
         "expected_trade": "plumbing",
         "expected_priority": "high",
-        "safety_notes": "Fire suppression system impairment — do not hang items from head; expedite repair.",
+        "safety_notes": [
+            "Fire suppression system impairment — do not hang items from head; expedite repair.",
+        ],
     },
     {
         "id": "WO-2024-0019",
@@ -304,7 +336,7 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-13T11:20:00-05:00",
         "expected_trade": "hvac",
         "expected_priority": "medium",
-        "safety_notes": "",
+        "safety_notes": [],
     },
     {
         "id": "WO-2024-0020",
@@ -318,6 +350,8 @@ WORK_ORDERS: list[WorkOrderSample] = [
         "created_at": "2024-03-14T16:05:00-05:00",
         "expected_trade": "electrical",
         "expected_priority": "medium",
-        "safety_notes": "Egress lighting deficiency — prioritize before next occupancy period.",
+        "safety_notes": [
+            "Egress lighting deficiency — prioritize before next occupancy period.",
+        ],
     },
 ]

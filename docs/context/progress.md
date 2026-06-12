@@ -26,6 +26,7 @@ Weekly milestones and what has shipped.
 - Adding `docs/context/` AI memory files
 - Adding `.ai/context-index.md` and skill procedures
 - Adding `tools/context_pack.py` for context bundling
+- Fixed `safety_notes` type alignment: samples and model both use `list[str]`
 - Preparing for Week 5 CLI workflow (not started yet)
 
 ## Upcoming
