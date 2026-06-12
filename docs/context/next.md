@@ -1,30 +1,16 @@
 # Immediate Next Logical Step
 
-## Current Milestone: Green Baseline Before Week 5
+## Week 5 Complete — CLI Validation Shipped
 
-1. Commit memory infrastructure: **Add repo-native AI project memory**
-2. Commit `safety_notes` alignment fix (samples → `list[str]`, tests green)
-3. Confirm: `uv run ruff check .` and `uv run pytest` pass
+Week 5 delivered local file ingestion via `uv run python -m triage.cli validate <path>`.
 
-## Next: Week 5 CLI Workflow
+Confirm green baseline:
 
-- Local-only, no network dependencies
-- Deterministic behavior (no LLMs)
-- Fully typed public functions
-- pytest coverage for CLI behavior
-- Uses existing models, samples, and filters
+```bash
+uv run ruff check .
+uv run pytest
+```
 
-## Week 5 Non-Goals
+Commit with message: **Add Week 5 CLI validation for JSON and JSONL work orders**
 
-- No FastAPI
-- No database
-- No LLMs or agents
-- No MCP
-- No cloud deployment
-
-## Definition of Done for Green Baseline
-
-- Memory infrastructure committed
-- `safety_notes` aligned as `list[str]` across samples, model, and tests
-- ruff and pytest pass
-- Ready for Week 5 CLI feature work
+## Next Options

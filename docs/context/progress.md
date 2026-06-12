@@ -21,15 +21,15 @@ Weekly milestones and what has shipped.
 - Full pytest coverage for filters
 - Pydantic models and validation (`src/triage/models.py`)
 
-## Current — Repo-Native Memory Infrastructure
+## Week 5 — CLI Ingestion and Validation
 
-- Adding `docs/context/` AI memory files
-- Adding `.ai/context-index.md` and skill procedures
-- Adding `tools/context_pack.py` for context bundling
-- Fixed `safety_notes` type alignment: samples and model both use `list[str]`
-- Preparing for Week 5 CLI workflow (not started yet)
+- `src/triage/cli.py` — argparse `validate` command for JSON/JSONL files
+- Validates records through existing `WorkOrder` Pydantic model
+- Exit codes and human-readable summary with source locations for errors
+- Full pytest coverage in `tests/test_cli.py`
+- Learning log: `docs/learning/week-05.md`
 
 ## Upcoming
 
-- **Week 5:** Local, deterministic, typed CLI workflow
-- **Later phases:** FastAPI, LLMs, evaluation harness (see README roadmap)
+- **Week 6+:** CLI filter/count commands or Phase 2 FastAPI (see README roadmap)
+- **Later phases:** LLMs, evaluation harness

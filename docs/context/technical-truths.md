@@ -17,10 +17,12 @@ Current technical facts about the codebase. Update when the implementation chang
 ```
 src/triage/
 ├── __init__.py
+├── cli.py         # argparse CLI: validate JSON/JSONL work-order files
 ├── models.py      # WorkOrder, enums, validate_work_orders()
 ├── samples.py     # Sample work order data
 └── filters.py     # Deterministic filter and count functions
 tests/
+├── test_cli.py
 ├── test_models.py
 └── test_filters.py
 tools/
@@ -45,6 +47,13 @@ tools/
 - Enum normalization via `casefold()` in validators
 - `validate_work_orders()` accepts `Iterable[WorkOrderSample]`, returns `list[WorkOrder]`
 
+### CLI (`src/triage/cli.py`)
+
+- `uv run python -m triage.cli validate <path>` — validate JSON/JSONL work-order files
+- Supports `.json` (object or array) and `.jsonl` (one object per line)
+- Exit 0 when all records valid; exit 1 on load or validation failure
+- Prints summary plus per-record Pydantic errors with source location (`line N`, `record N`)
+
 ### Filters (`src/triage/filters.py`)
 
 - `get_work_orders_by_trade()` — case-insensitive trade filter
@@ -66,5 +75,4 @@ tools/
 
 ## Not Yet Implemented
 
-- CLI entry point (Week 5 target)
 - FastAPI, database, LLMs, agents, MCP
