@@ -12,7 +12,16 @@ from typing import Any
 
 from pydantic import ValidationError
 
+from triage.filters import (
+    count_by_priority,
+    count_by_trade,
+    get_safety_related_work_orders,
+    get_vague_or_incomplete_work_orders,
+    get_work_orders_by_priority,
+    get_work_orders_by_trade,
+)
 from triage.models import WorkOrder
+from triage.samples import WorkOrderSample
 
 
 class LoadError(Exception):
@@ -118,6 +127,74 @@ def _print_summary(summary: ValidationSummary) -> None:
         print(line)
 
 
+def load_validated_work_orders(
+    path: Path,
+) -> tuple[ValidationSummary | None, list[WorkOrderSample]]:
+    records = load_records(path)
+    summary = validate_records(records)
+    if summary.invalid > 0:
+        return summary, []
+    return None, [record for _, record in records]
+
+
+def apply_filter(
+    work_orders: Iterable[WorkOrderSample],
+    *,
+    trade: str | None = None,
+    priority: str | None = None,
+    safety: bool = False,
+    incomplete: bool = False,
+) -> list[WorkOrderSample]:
+    if trade is not None:
+        return get_work_orders_by_trade(work_orders, trade)
+    if priority is not None:
+        return get_work_orders_by_priority(work_orders, priority)
+    if safety:
+        return get_safety_related_work_orders(work_orders)
+    if incomplete:
+        return get_vague_or_incomplete_work_orders(work_orders)
+    raise ValueError("no filter specified")
+
+
+def _print_filter_results(
+    total: int,
+    filter_label: str,
+    matches: list[WorkOrderSample],
+) -> None:
+    print(f"Loaded {total} work order(s).")
+    print(f"Filter: {filter_label}")
+    print(f"Matches: {len(matches)}")
+    for work_order in sorted(matches, key=lambda item: item["id"]):
+        print(f"- {work_order['id']}")
+
+
+def _print_count_results(
+    total: int,
+    by: str,
+    counts: dict[str, int],
+) -> None:
+    print(f"Loaded {total} work order(s).")
+    print(f"Count by: {by}")
+    for key in sorted(counts):
+        print(f"{key}: {counts[key]}")
+
+
+def _handle_load_or_validation_failure(
+    path: Path,
+) -> tuple[int, list[WorkOrderSample]]:
+    try:
+        summary, work_orders = load_validated_work_orders(path)
+    except LoadError as exc:
+        print(f"Error: {exc}", file=sys.stderr)
+        return 1, []
+
+    if summary is not None:
+        _print_summary(summary)
+        return 1, []
+
+    return 0, work_orders
+
+
 def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="triage")
     subparsers = parser.add_subparsers(dest="command", required=True)
@@ -132,12 +209,62 @@ def build_parser() -> argparse.ArgumentParser:
         help="Path to a .json or .jsonl work-order file",
     )
 
+    filter_parser = subparsers.add_parser(
+        "filter",
+        help="Filter validated work-order records from a JSON or JSONL file",
+    )
+    filter_parser.add_argument(
+        "path",
+        type=Path,
+        help="Path to a .json or .jsonl work-order file",
+    )
+    filter_group = filter_parser.add_mutually_exclusive_group(required=True)
+    filter_group.add_argument(
+        "--trade",
+        metavar="TRADE",
+        help="Filter by expected trade (electrical, general, hvac, plumbing)",
+    )
+    filter_group.add_argument(
+        "--priority",
+        metavar="PRIORITY",
+        help="Filter by expected priority (emergency, urgent, high, medium)",
+    )
+    filter_group.add_argument(
+        "--safety",
+        action="store_true",
+        help="Filter to work orders with safety notes",
+    )
+    filter_group.add_argument(
+        "--incomplete",
+        action="store_true",
+        help="Filter to work orders missing location or asset",
+    )
+
+    count_parser = subparsers.add_parser(
+        "count",
+        help="Count validated work-order records from a JSON or JSONL file",
+    )
+    count_parser.add_argument(
+        "path",
+        type=Path,
+        help="Path to a .json or .jsonl work-order file",
+    )
+    count_parser.add_argument(
+        "--by",
+        required=True,
+        choices=["trade", "priority"],
+        help="Group counts by trade or priority",
+    )
+
     return parser
 
 
 def main(argv: list[str] | None = None) -> int:
     parser = build_parser()
-    args = parser.parse_args(argv)
+    try:
+        args = parser.parse_args(argv)
+    except SystemExit as exc:
+        return 0 if exc.code in (0, None) else 1
 
     if args.command == "validate":
         try:
@@ -149,6 +276,40 @@ def main(argv: list[str] | None = None) -> int:
         summary = validate_records(records)
         _print_summary(summary)
         return 0 if summary.invalid == 0 else 1
+
+    if args.command == "filter":
+        exit_code, work_orders = _handle_load_or_validation_failure(args.path)
+        if exit_code != 0:
+            return exit_code
+
+        if args.trade is not None:
+            filter_label = f"trade={args.trade}"
+            matches = apply_filter(work_orders, trade=args.trade)
+        elif args.priority is not None:
+            filter_label = f"priority={args.priority}"
+            matches = apply_filter(work_orders, priority=args.priority)
+        elif args.safety:
+            filter_label = "safety"
+            matches = apply_filter(work_orders, safety=True)
+        else:
+            filter_label = "incomplete"
+            matches = apply_filter(work_orders, incomplete=True)
+
+        _print_filter_results(len(work_orders), filter_label, matches)
+        return 0
+
+    if args.command == "count":
+        exit_code, work_orders = _handle_load_or_validation_failure(args.path)
+        if exit_code != 0:
+            return exit_code
+
+        if args.by == "trade":
+            counts = count_by_trade(work_orders)
+        else:
+            counts = count_by_priority(work_orders)
+
+        _print_count_results(len(work_orders), args.by, counts)
+        return 0
 
     parser.error(f"unknown command: {args.command}")
     return 1

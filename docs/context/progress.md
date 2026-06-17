@@ -29,7 +29,16 @@ Weekly milestones and what has shipped.
 - Full pytest coverage in `tests/test_cli.py`
 - Learning log: `docs/learning/week-05.md`
 
+## Week 6 — CLI Filter and Count Commands
+
+- Extended `src/triage/cli.py` with `filter` and `count` subcommands
+- Reuses `load_records()`, `validate_records()`, and `src/triage/filters.py`
+- Filter by trade, priority, safety, or incomplete; count by trade or priority
+- Validates files before querying; exit 1 on load, validation, or argument errors
+- 12 additional CLI tests in `tests/test_cli.py`
+- Learning log: `docs/learning/week-06.md`
+
 ## Upcoming
 
-- **Week 6+:** CLI filter/count commands or Phase 2 FastAPI (see README roadmap)
+- **Week 7+:** Additional CLI commands, evaluation fixtures, or Phase 2 FastAPI
 - **Later phases:** LLMs, evaluation harness

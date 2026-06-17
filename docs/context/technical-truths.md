@@ -50,9 +50,12 @@ tools/
 ### CLI (`src/triage/cli.py`)
 
 - `uv run python -m triage.cli validate <path>` — validate JSON/JSONL work-order files
+- `uv run python -m triage.cli filter <path> --trade|--priority|--safety|--incomplete` — filter validated records
+- `uv run python -m triage.cli count <path> --by trade|priority` — count validated records by category
 - Supports `.json` (object or array) and `.jsonl` (one object per line)
-- Exit 0 when all records valid; exit 1 on load or validation failure
-- Prints summary plus per-record Pydantic errors with source location (`line N`, `record N`)
+- `filter` and `count` validate all records before querying; refuse partially invalid files
+- Exit 0 on success; exit 1 on load, validation, or argument errors
+- Human-readable output with work-order IDs for filter matches and sorted counts
 
 ### Filters (`src/triage/filters.py`)
 
